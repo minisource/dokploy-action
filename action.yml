@@ -102,7 +102,15 @@ runs:
         else
           IMAGE="${{ inputs.image_name }}:${{ inputs.tag }}"
         fi
-        sed "s|image:.*|image: $IMAGE|" ${{ inputs.compose_path }} > composed.tmp.yml
+
+        if command -v yq >/dev/null 2>&1; then
+          echo "🛠 Using yq for precise update..."
+          yq e "(.services[] | select(.image | contains(\"${{ inputs.image_name }}\"))).image = \"$IMAGE\"" -i ${{ inputs.compose_path }}
+          cp ${{ inputs.compose_path }} composed.tmp.yml
+        else
+          echo "⚠️ yq not found, falling back to sed..."
+          sed "s|image:.*${{ inputs.image_name }}.*|image: $IMAGE|" ${{ inputs.compose_path }} > composed.tmp.yml
+        fi
       shell: bash
 
     - name: Update Compose in Dokploy
