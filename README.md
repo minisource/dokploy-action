@@ -20,7 +20,7 @@ A GitHub Action for deploying Docker Compose applications to Dokploy. This actio
 
 | Input | Description | Required | Default |
 |-------|-------------|----------|---------|
-| `dokploy_domain` | Dokploy panel domain | Yes | - |
+| `dokploy_domain` | Dokploy panel domain (without protocol) | Yes | - |
 | `api_key` | Dokploy API key | Yes | - |
 | `compose_id` | Compose ID in Dokploy | Yes | - |
 | `registry_domain` | Docker registry domain (leave empty for DockerHub/local) | No | `""` |
@@ -32,6 +32,7 @@ A GitHub Action for deploying Docker Compose applications to Dokploy. This actio
 | `context_path` | Build context directory (defaults to Dockerfile folder) | No | `""` |
 | `compose_path` | Path to docker-compose.yml | No | `docker-compose.yml` |
 | `do_clean` | Run cleanAll after deploy | No | `false` |
+| `debug` | Enable debug logging (true/false) | No | `false` |
 
 ## Outputs
 
@@ -73,7 +74,7 @@ jobs:
 ```yaml
 - uses: minisource/dokploy-action@v1
   with:
-    dokploy_domain: https://my-dokploy-instance.com
+    dokploy_domain: my-dokploy-instance.com
     api_key: ${{ secrets.DOKPLOY_API_KEY }}
     compose_id: my-compose-app
     registry_domain: ghcr.io
@@ -85,6 +86,7 @@ jobs:
     context_path: ./docker
     compose_path: ./docker/docker-compose.yml
     do_clean: false
+    debug: false
 ```
 
 ## Workflow Steps
