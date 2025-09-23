@@ -97,10 +97,30 @@ The action performs the following steps in order:
 2. **Login to Docker registry** (if credentials provided)
 3. **Build Docker image** using the specified Dockerfile
 4. **Push image** to the configured registry
-5. **Update compose file locally** by replacing the image reference
+5. **Update compose file locally** by replacing variable placeholders
 6. **Update compose in Dokploy** via API
 7. **Trigger deployment** in Dokploy
 8. **Clean up** (optional) by running cleanAll
+
+### Compose File Update
+
+The action updates your `docker-compose.yml` file by replacing variable placeholders with their actual values. This allows for dynamic image references that update automatically with each deployment.
+
+**Supported placeholders:**
+- `${registry_domain}` - Replaced with the registry domain (if provided)
+- `${image_name}` - Replaced with the image name
+- `${tag}` - Replaced with the image tag
+
+**Example usage in docker-compose.yml:**
+```yaml
+version: '3.8'
+services:
+  my-app:
+    image: ${registry_domain}/${image_name}:${tag}
+    # ... other config
+```
+
+This will be replaced with the full image path (e.g., `registry.example.com/my-app:v1.0.0`) during deployment.
 
 ## Security
 

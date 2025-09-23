@@ -152,12 +152,11 @@ runs:
         fi
       shell: bash
 
-
     - name: Update Compose in Dokploy
       run: |
         set -euo pipefail
         echo "📤 Sending updated compose to Dokploy..."
-        PAYLOAD=$(jq -Rs . < composed.tmp.yml)
+        PAYLOAD=$(jq -Rs . < "${{ inputs.compose_path }}")
         RESP=$(curl -fs -X POST "https://${{ inputs.dokploy_domain }}/api/compose/update" \
           -H "x-api-key: ${{ inputs.api_key }}" \
           -H "Content-Type: application/json" \
