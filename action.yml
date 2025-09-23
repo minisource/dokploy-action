@@ -128,18 +128,30 @@ runs:
         set -euo pipefail
         echo "🔧 Updating docker-compose.yml..."
 
+        # Generate full image name
         if [ -n "${{ inputs.registry_domain }}" ]; then
-          IMAGE_BASE="${{ inputs.registry_domain }}/${{ inputs.image_name }}"
+          IMAGE_FULL="${{ inputs.registry_domain }}/${{ inputs.image_name }}:${{ inputs.tag }}"
         else
-          IMAGE_BASE="${{ inputs.image_name }}"
+          IMAGE_FULL="${{ inputs.image_name }}:${{ inputs.tag }}"
         fi
 
-        IMAGE_TAG="${{ inputs.tag }}"
-        echo "✅ Target image = $IMAGE_BASE:$IMAGE_TAG"
+        echo "✅ Target image = $IMAGE_FULL"
 
-        sed -E "s|(image:[[:space:]]*$IMAGE_BASE)(:[^[:space:]]*)?|\1:$IMAGE_TAG|g" \
-          "${{ inputs.compose_path }}" > composed.tmp.yml
+        # Escape for sed
+        ESCAPED_IMAGE="${IMAGE_FULL//&/\\&}"
+
+        # Replace in compose file
+        sed -i -E "s|IMAGE_FULL|$ESCAPED_IMAGE|g" "${{ inputs.compose_path }}"
+
+        echo "✅ Compose file updated"
+
+        # Debug mode
+        if [ "${{ inputs.debug }}" = "true" ]; then
+          echo "🔎 Debug mode: showing updated compose file"
+          cat "${{ inputs.compose_path }}"
+        fi
       shell: bash
+
 
     - name: Update Compose in Dokploy
       run: |
