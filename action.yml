@@ -129,22 +129,16 @@ runs:
         echo "🔧 Updating docker-compose.yml..."
 
         if [ -n "${{ inputs.registry_domain }}" ]; then
-          IMAGE="${{ inputs.registry_domain }}/${{ inputs.image_name }}:${{ inputs.tag }}"
+          IMAGE_BASE="${{ inputs.registry_domain }}/${{ inputs.image_name }}"
         else
-          IMAGE="${{ inputs.image_name }}:${{ inputs.tag }}"
+          IMAGE_BASE="${{ inputs.image_name }}"
         fi
 
-        echo "✅ Target image = $IMAGE"
+        IMAGE_TAG="${{ inputs.tag }}"
+        echo "✅ Target image = $IMAGE_BASE:$IMAGE_TAG"
 
-        if command -v yq >/dev/null 2>&1; then
-          echo "📌 Using yq to update compose..."
-          yq e "(.services[].image |= \"$IMAGE\")" -i "${{ inputs.compose_path }}"
-          cp "${{ inputs.compose_path }}" composed.tmp.yml
-        else
-          echo "📌 Using sed fallback..."
-          sed -E "s|(^[[:space:]]*image:[[:space:]]*).*${{ inputs.image_name }}(:[^[:space:]]*)?|\1$IMAGE|g" \
-            "${{ inputs.compose_path }}" > composed.tmp.yml
-        fi
+        sed -E "s|(^[[:space:]]*image:[[:space:]]*$IMAGE_BASE)(:[^[:space:]]*)?|\1:$IMAGE_TAG|g" \
+          "${{ inputs.compose_path }}" > composed.tmp.yml
       shell: bash
 
     - name: Update Compose in Dokploy
