@@ -137,7 +137,7 @@ runs:
         IMAGE_TAG="${{ inputs.tag }}"
         echo "✅ Target image = $IMAGE_BASE:$IMAGE_TAG"
 
-        sed -E "s|(^[[:space:]]*image:[[:space:]]*$IMAGE_BASE)(:[^[:space:]]*)?|\1:$IMAGE_TAG|g" \
+        sed -E "s|(image:[[:space:]]*$IMAGE_BASE)(:[^[:space:]]*)?|\1:$IMAGE_TAG|g" \
           "${{ inputs.compose_path }}" > composed.tmp.yml
       shell: bash
 
