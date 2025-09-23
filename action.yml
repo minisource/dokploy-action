@@ -134,7 +134,7 @@ runs:
         fi
 
         if command -v yq >/dev/null 2>&1; then
-          yq e '(.. | select(has("image") and (.image | contains("${{ inputs.image_name }}"))).image) = "$IMAGE"' -i ${{ inputs.compose_path }}
+          yq e '(.. .image | select(. | contains("${{ inputs.image_name }}"))) = "$IMAGE"' -i ${{ inputs.compose_path }}
           cp ${{ inputs.compose_path }} composed.tmp.yml
         else
           sed "s|^\([[:space:]]*\)image:.*${{ inputs.image_name }}.*|\1image: $IMAGE|g" ${{ inputs.compose_path }} > composed.tmp.yml
