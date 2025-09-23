@@ -127,17 +127,23 @@ runs:
       run: |
         set -euo pipefail
         echo "🔧 Updating docker-compose.yml..."
+
         if [ -n "${{ inputs.registry_domain }}" ]; then
           IMAGE="${{ inputs.registry_domain }}/${{ inputs.image_name }}:${{ inputs.tag }}"
         else
           IMAGE="${{ inputs.image_name }}:${{ inputs.tag }}"
         fi
 
+        echo "✅ Target image = $IMAGE"
+
         if command -v yq >/dev/null 2>&1; then
-          yq e '(.. .image | select(. | contains("${{ inputs.image_name }}"))) = "$IMAGE"' -i ${{ inputs.compose_path }}
-          cp ${{ inputs.compose_path }} composed.tmp.yml
+          echo "📌 Using yq to update compose..."
+          yq e "(.services[].image |= \"$IMAGE\")" -i "${{ inputs.compose_path }}"
+          cp "${{ inputs.compose_path }}" composed.tmp.yml
         else
-          sed "s|^\([[:space:]]*\)image:.*${{ inputs.image_name }}.*|\1image: $IMAGE|g" ${{ inputs.compose_path }} > composed.tmp.yml
+          echo "📌 Using sed fallback..."
+          sed -E "s|(^[[:space:]]*image:[[:space:]]*).*${{ inputs.image_name }}(:[^[:space:]]*)?|\1$IMAGE|g" \
+            "${{ inputs.compose_path }}" > composed.tmp.yml
         fi
       shell: bash
 
