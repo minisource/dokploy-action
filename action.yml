@@ -51,6 +51,10 @@ inputs:
     description: 'Enable debug logging (true/false)'
     required: false
     default: 'false'
+  image_placeholder:
+    description: 'Placeholder word to replace in compose file'
+    required: false
+    default: 'IMAGE_FULL'
 
 outputs:
   deployment_id:
@@ -141,7 +145,7 @@ runs:
         ESCAPED_IMAGE="${IMAGE_FULL//&/\\&}"
 
         # Replace in compose file
-        sed -i -E "s|IMAGE_FULL|$ESCAPED_IMAGE|g" "${{ inputs.compose_path }}"
+        sed -i -E "s|${{ inputs.image_placeholder }}|$ESCAPED_IMAGE|g" "${{ inputs.compose_path }}"
 
         echo "✅ Compose file updated"
 

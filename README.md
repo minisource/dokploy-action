@@ -33,6 +33,7 @@ A GitHub Action for deploying Docker Compose applications to Dokploy. This actio
 | `compose_path` | Path to docker-compose.yml | No | `docker-compose.yml` |
 | `do_clean` | Run cleanAll after deploy | No | `false` |
 | `debug` | Enable debug logging (true/false) | No | `false` |
+| `image_placeholder` | Placeholder word to replace in compose file | No | `IMAGE_FULL` |
 
 ## Outputs
 
@@ -85,6 +86,7 @@ jobs:
     dockerfile_path: ./docker/Dockerfile
     context_path: ./docker
     compose_path: ./docker/docker-compose.yml
+    image_placeholder: MY_CUSTOM_IMAGE_PLACEHOLDER
     do_clean: false
     debug: false
 ```
@@ -104,23 +106,31 @@ The action performs the following steps in order:
 
 ### Compose File Update
 
-The action updates your `docker-compose.yml` file by replacing variable placeholders with their actual values. This allows for dynamic image references that update automatically with each deployment.
+The action updates your `docker-compose.yml` file by replacing a configurable placeholder with the full image name. This allows for dynamic image references that update automatically with each deployment.
 
-**Supported placeholders:**
-- `${registry_domain}` - Replaced with the registry domain (if provided)
-- `${image_name}` - Replaced with the image name
-- `${tag}` - Replaced with the image tag
+**Default placeholder:** `IMAGE_FULL`
 
 **Example usage in docker-compose.yml:**
 ```yaml
 version: '3.8'
 services:
   my-app:
-    image: ${registry_domain}/${image_name}:${tag}
+    image: IMAGE_FULL  # Default placeholder
+    # ... other config
+```
+
+Or with a custom placeholder:
+```yaml
+version: '3.8'
+services:
+  my-app:
+    image: MY_CUSTOM_IMAGE_PLACEHOLDER
     # ... other config
 ```
 
 This will be replaced with the full image path (e.g., `registry.example.com/my-app:v1.0.0`) during deployment.
+
+You can customize the placeholder by setting the `image_placeholder` input to any word you prefer.
 
 ## Security
 
